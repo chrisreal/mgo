@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/globalsign/mgo/bson"
+	"github.com/chrisreal/mgo/bson"
 )
 
 type FullDocument string
@@ -45,6 +45,8 @@ type ChangeStreamOptions struct {
 
 	// BatchSize specifies the number of documents to return per batch.
 	BatchSize int
+
+	StartAtOperationTime bson.MongoTimestamp
 
 	// Collation specifies the way the server should collate returned data.
 	//TODO Collation *Collation
@@ -230,6 +232,10 @@ func constructChangeStreamPipeline(pipeline interface{},
 	}
 	if options.ResumeAfter != nil {
 		changeStreamStageOptions["resumeAfter"] = options.ResumeAfter
+	}
+
+	if int64(options.StartAtOperationTime) != 0 {
+		changeStreamStageOptions["startAtOperationTime"] = options.StartAtOperationTime
 	}
 
 	changeStreamStage := bson.M{"$changeStream": changeStreamStageOptions}
